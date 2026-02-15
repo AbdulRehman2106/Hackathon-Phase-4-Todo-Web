@@ -31,11 +31,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({ tasks, onTaskClick, 
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   const goToPreviousMonth = () => {
-    setCurrentDate(getPreviousMonth(currentDate));
+    const { year: newYear, month: newMonth } = getPreviousMonth(year, month);
+    setCurrentDate(new Date(newYear, newMonth, 1));
   };
 
   const goToNextMonth = () => {
-    setCurrentDate(getNextMonth(currentDate));
+    const { year: newYear, month: newMonth } = getNextMonth(year, month);
+    setCurrentDate(new Date(newYear, newMonth, 1));
   };
 
   const goToToday = () => {
