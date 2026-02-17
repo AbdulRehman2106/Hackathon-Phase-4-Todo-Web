@@ -5,7 +5,7 @@ from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 from datetime import datetime
 from sqlalchemy import text
-from src.database import get_db
+from src.database import get_session
 
 router = APIRouter()
 
@@ -36,7 +36,7 @@ async def readiness_check():
     """
     try:
         # Check database connectivity
-        db = next(get_db())
+        db = next(get_session())
 
         # Simple query to verify database connection
         result = db.execute(text("SELECT 1"))
