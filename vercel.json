@@ -1,6 +1,10 @@
 {
+  "name": "Simple-AI-Todo-Application",
   "buildCommand": "cd frontend && npm install && npm run build",
   "outputDirectory": "frontend/.next",
   "framework": "nextjs",
-  "installCommand": "cd frontend && npm install"
+  "installCommand": "cd frontend && npm install",
+  "env": {
+    "NEXT_PUBLIC_API_URL": "https://abdul18-hackathon-phase-4.hf.space"
+  }
 }
