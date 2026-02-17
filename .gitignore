@@ -24,6 +24,10 @@ target/
 .env*.local
 *.env
 
+# Kubernetes secrets (DO NOT commit)
+k8s/base/secrets.yaml
+k8s-secrets.yaml
+
 # Logs
 *.log
 npm-debug.log*

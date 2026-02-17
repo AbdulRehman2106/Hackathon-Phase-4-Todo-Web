@@ -52,12 +52,6 @@ def on_startup():
     except Exception as e:
         print(f"Warning: Could not initialize MCP server: {e}")
 
-# Health check endpoint
-@app.get("/health")
-async def health_check():
-    """Health check endpoint to verify API is running."""
-    return {"status": "healthy"}
-
 # Root endpoint
 @app.get("/")
 async def root():
@@ -70,9 +64,12 @@ async def root():
     }
 
 # Router registration
-from src.api import auth, tasks, subtasks, password_reset, chat
+from src.api import auth, tasks, subtasks, password_reset, chat, health
 # AI router temporarily disabled due to Vercel size constraints
 # from src.api import ai
+
+# Health check endpoints (no prefix for Kubernetes probes)
+app.include_router(health.router, tags=["Health"])
 
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(password_reset.router, prefix="/api/auth", tags=["Password Reset"])

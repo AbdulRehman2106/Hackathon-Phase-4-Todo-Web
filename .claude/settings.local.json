@@ -98,7 +98,26 @@
       "Bash(.specify/scripts/powershell/setup-plan.ps1 -Json)",
       "Bash(grep:*)",
       "Bash(git rm:*)",
-      "Bash(gh pr create:*)"
+      "Bash(gh pr create:*)",
+      "Bash(where:*)",
+      "Bash(printf:*)",
+      "Bash(./create-phr.sh:*)",
+      "Bash(bash:*)",
+      "Bash(if [ -d \"specs/003-k8s-deployment/checklists\" ])",
+      "Bash(then ls -la specs/003-k8s-deployment/checklists/)",
+      "Bash(else echo \"No checklists directory\")",
+      "Bash(fi)",
+      "Bash(docker:*)",
+      "Bash(minikube version:*)",
+      "Bash(helm version)",
+      "Bash(kubectl version --client)",
+      "Bash(minikube start:*)",
+      "Bash(minikube status:*)",
+      "Bash(minikube update-context)",
+      "Bash(kubectl config current-context:*)",
+      "Bash(minikube addons enable:*)",
+      "Bash(chmod:*)",
+      "Bash(git remote:*)"
     ]
   }
 }

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: todo-app-config
+  namespace: todo-app
+  labels:
+    app: todo-app
+data:
+  # Backend Configuration
+  BACKEND_HOST: "0.0.0.0"
+  BACKEND_PORT: "8000"
+  BACKEND_RELOAD: "false"
+  CORS_ORIGINS: "http://localhost:3000,http://frontend-service:3000"
+
+  # Frontend Configuration
+  NEXT_PUBLIC_API_URL: "http://backend-service:8000"
+  NODE_ENV: "production"
+  NEXT_TELEMETRY_DISABLED: "1"
+  PORT: "3000"
+  HOSTNAME: "0.0.0.0"

@@ -1,0 +1,298 @@
+# Backend Helm Values Contract
+
+**Chart**: todo-backend
+**Version**: 1.0.0
+**Purpose**: Configuration schema for backend Helm chart
+
+## Values Schema
+
+```yaml
+# Replica configuration
+replicaCount: 2  # Min: 1, Max: 10, Default: 2
+
+# Container image configuration
+image:
+  repository: todo-backend  # Image name (without tag)
+  tag: latest               # Image tag
+  pullPolicy: IfNotPresent  # Options: Always, IfNotPresent, Never
+
+# Service configuration
+service:
+  type: ClusterIP           # Options: ClusterIP, NodePort, LoadBalancer
+  port: 8000                # Service port
+  targetPort: 8000          # Container port
+
+# Resource limits and requests
+resources:
+  requests:
+    cpu: 250m               # CPU request (millicores)
+    memory: 512Mi           # Memory request
+  limits:
+    cpu: 1000m              # CPU limit (millicores)
+    memory: 1Gi             # Memory limit
+
+# Autoscaling configuration
+autoscaling:
+  enabled: true             # Enable HPA
+  minReplicas: 2            # Minimum replicas
+  maxReplicas: 5            # Maximum replicas
+  targetCPUUtilizationPercentage: 80  # Target CPU %
+
+# Health check configuration
+livenessProbe:
+  enabled: true
+  path: /health
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  enabled: true
+  path: /ready
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 2
+
+# Application configuration (non-sensitive)
+config:
+  logLevel: "info"                    # Options: debug, info, warn, error
+  environment: "production"           # Options: development, production
+  corsOrigins: "http://todo-frontend:3000"  # CORS allowed origins
+
+# Secrets configuration (references to Secret resource)
+secrets:
+  # Secret name containing sensitive data
+  secretName: backend-secrets
+  # Keys within the secret
+  databaseUrlKey: database_url
+  cohereApiKeyKey: cohere_api_key
+  jwtSecretKey: jwt_secret
+
+# Security context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+# Ingress configuration (optional)
+ingress:
+  enabled: false            # Enable ingress
+  className: nginx          # Ingress class
+  host: api.todo.local     # Hostname
+  path: /api               # Path prefix
+  pathType: Prefix         # Options: Prefix, Exact
+
+# Node selector (optional)
+nodeSelector: {}
+
+# Tolerations (optional)
+tolerations: []
+
+# Affinity rules (optional)
+affinity: {}
+
+# Database connection pool settings
+database:
+  poolSize: 10              # Connection pool size
+  maxOverflow: 20           # Max overflow connections
+  poolTimeout: 30           # Pool timeout (seconds)
+  poolRecycle: 3600         # Recycle connections after (seconds)
+
+# AI/Cohere configuration
+ai:
+  model: "command-r-plus"   # Cohere model name
+  temperature: 0.7          # Response temperature (0.0-1.0)
+  maxTokens: 1000           # Max tokens per response
+  timeout: 30               # API timeout (seconds)
+```
+
+## Required Values
+
+The following values MUST be provided:
+- `image.repository`: Container image name
+- `image.tag`: Container image tag
+- `secrets.secretName`: Name of Kubernetes Secret containing credentials
+
+## Secret Requirements
+
+The backend requires a Kubernetes Secret with the following keys:
+- `database_url`: PostgreSQL connection string
+- `cohere_api_key`: Cohere API key
+- `jwt_secret`: JWT signing secret
+
+See [secrets-template.yaml](./secrets-template.yaml) for creation instructions.
+
+## Optional Values
+
+All other values have sensible defaults and can be omitted.
+
+## Value Constraints
+
+| Field | Type | Constraint | Default |
+|-------|------|------------|---------|
+| replicaCount | integer | 1-10 | 2 |
+| service.port | integer | 1-65535 | 8000 |
+| resources.requests.cpu | string | Valid CPU units | 250m |
+| resources.requests.memory | string | Valid memory units | 512Mi |
+| resources.limits.cpu | string | Valid CPU units | 1000m |
+| resources.limits.memory | string | Valid memory units | 1Gi |
+| autoscaling.minReplicas | integer | 1-10 | 2 |
+| autoscaling.maxReplicas | integer | 1-10 | 5 |
+| autoscaling.targetCPUUtilizationPercentage | integer | 1-100 | 80 |
+| config.logLevel | string | debug\|info\|warn\|error | info |
+| config.environment | string | development\|production | production |
+| database.poolSize | integer | 1-100 | 10 |
+| database.maxOverflow | integer | 0-100 | 20 |
+| ai.temperature | float | 0.0-1.0 | 0.7 |
+| ai.maxTokens | integer | 1-4000 | 1000 |
+
+## Example Usage
+
+### Minimal Configuration
+```yaml
+image:
+  repository: todo-backend
+  tag: v1.0.0
+
+secrets:
+  secretName: backend-secrets
+```
+
+### Development Configuration
+```yaml
+replicaCount: 1
+
+image:
+  repository: todo-backend
+  tag: dev
+  pullPolicy: Always
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: false
+
+config:
+  logLevel: "debug"
+  environment: "development"
+
+secrets:
+  secretName: backend-secrets-dev
+
+database:
+  poolSize: 5
+  maxOverflow: 10
+
+ai:
+  model: "command-r"
+  temperature: 0.9
+  maxTokens: 500
+```
+
+### Production Configuration
+```yaml
+replicaCount: 3
+
+image:
+  repository: todo-backend
+  tag: v1.0.0
+  pullPolicy: IfNotPresent
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+
+config:
+  logLevel: "info"
+  environment: "production"
+  corsOrigins: "https://todo.example.com"
+
+secrets:
+  secretName: backend-secrets-prod
+
+database:
+  poolSize: 20
+  maxOverflow: 40
+  poolTimeout: 30
+  poolRecycle: 3600
+
+ai:
+  model: "command-r-plus"
+  temperature: 0.7
+  maxTokens: 1000
+  timeout: 30
+
+ingress:
+  enabled: true
+  className: nginx
+  host: api.todo.example.com
+  path: /api
+```
+
+## Environment Variables Mapping
+
+The chart creates the following environment variables in containers:
+
+| Helm Value | Environment Variable | Source |
+|------------|---------------------|--------|
+| secrets.databaseUrlKey | DATABASE_URL | Secret |
+| secrets.cohereApiKeyKey | COHERE_API_KEY | Secret |
+| secrets.jwtSecretKey | JWT_SECRET | Secret |
+| config.logLevel | LOG_LEVEL | ConfigMap |
+| config.environment | ENVIRONMENT | ConfigMap |
+| config.corsOrigins | CORS_ORIGINS | ConfigMap |
+| database.poolSize | DB_POOL_SIZE | ConfigMap |
+| database.maxOverflow | DB_MAX_OVERFLOW | ConfigMap |
+| database.poolTimeout | DB_POOL_TIMEOUT | ConfigMap |
+| database.poolRecycle | DB_POOL_RECYCLE | ConfigMap |
+| ai.model | COHERE_MODEL | ConfigMap |
+| ai.temperature | COHERE_TEMPERATURE | ConfigMap |
+| ai.maxTokens | COHERE_MAX_TOKENS | ConfigMap |
+| ai.timeout | COHERE_TIMEOUT | ConfigMap |
+
+## Validation
+
+Helm chart includes validation for:
+- Required fields presence
+- Value type correctness
+- Constraint satisfaction
+- Resource format validity
+- Secret reference existence
+
+Run validation:
+```bash
+helm lint ./helm/backend
+helm template ./helm/backend --values values.yaml --dry-run
+```
+
+## Dependencies
+
+Before deploying, ensure:
+1. Kubernetes Secret exists with required keys
+2. PostgreSQL database is accessible from cluster
+3. Cohere API key is valid
+4. Network policies allow backend → database communication
+
+---
+
+**Contract Version**: 1.0.0
+**Last Updated**: 2026-02-16
+**Status**: ✅ Complete

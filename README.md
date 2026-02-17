@@ -275,7 +275,81 @@ Phase_2/
 
 ## 🚀 Deployment
 
-### One-Command Deployment
+### Kubernetes Deployment (Phase 4) 🐳
+
+**Production-ready cloud-native deployment with Docker and Kubernetes:**
+
+#### Prerequisites
+- Docker installed and running
+- Kubernetes cluster (Minikube, Docker Desktop, or cloud provider)
+- kubectl CLI installed and configured
+
+#### Quick Deploy to Kubernetes
+
+**Windows:**
+```bash
+deploy-k8s.bat
+```
+
+**Linux/Mac:**
+```bash
+chmod +x deploy-k8s.sh
+./deploy-k8s.sh
+```
+
+#### Manual Kubernetes Deployment
+
+1. **Build Docker Images:**
+```bash
+# Backend
+cd backend
+docker build -t phase4-backend:latest .
+
+# Frontend
+cd ../frontend
+docker build -t phase4-frontend:latest .
+```
+
+2. **Configure Secrets:**
+```bash
+# Copy and edit secrets file
+cp k8s/base/secrets.yaml.example k8s/base/secrets.yaml
+# Edit k8s/base/secrets.yaml with your actual values
+```
+
+3. **Deploy to Kubernetes:**
+```bash
+# Apply all manifests
+kubectl apply -f k8s/base/
+
+# Or use Kustomize
+kubectl apply -k k8s/base/
+```
+
+4. **Access the Application:**
+```bash
+# For Minikube
+minikube service frontend-service -n todo-app
+
+# For Docker Desktop
+kubectl get service frontend-service -n todo-app
+# Access via http://localhost:3000
+```
+
+**Features:**
+- ✅ Multi-stage Docker builds for optimized images
+- ✅ Health checks and readiness probes
+- ✅ Resource limits and requests
+- ✅ Non-root container users
+- ✅ ConfigMaps and Secrets management
+- ✅ Horizontal scaling ready
+- ✅ LoadBalancer service for frontend
+
+**See [k8s/README.md](k8s/README.md) for detailed Kubernetes deployment guide.**
+
+---
+
+### One-Command Deployment (Development)
 
 **Windows:**
 ```bash
