@@ -117,7 +117,12 @@
       "Bash(kubectl config current-context:*)",
       "Bash(minikube addons enable:*)",
       "Bash(chmod:*)",
-      "Bash(git remote:*)"
+      "Bash(git remote:*)",
+      "Bash(npx vercel:*)",
+      "Bash(kubectl apply -f k8s/base/namespace.yaml)",
+      "Bash(kubectl apply:*)",
+      "Bash(kubectl get:*)",
+      "Bash(minikube image load:*)"
     ]
   }
 }
